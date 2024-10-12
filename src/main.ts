@@ -2,7 +2,7 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "My New Game";
+const gameName = "My Click Game";
 document.title = gameName;
 
 const header = document.createElement("h1");
@@ -10,18 +10,40 @@ header.innerHTML = gameName;
 app.append(header);
 
 let num_clicks = 0;
-let growthRate = 0; // Default growth rate starts at 0
+let growthRate = 0; 
+const itemsPurchased = { A: 0, B: 0, C: 0 };
 
 // Create a button for clicking
 const button = document.createElement("button");
 button.innerHTML = "Click!";
 app.append(button);
 
+// Create status displays
+const statusDisplay = document.createElement("div");
+const growthRateDisplay = document.createElement("p");
+const purchaseDisplay = document.createElement("p");
+statusDisplay.append(growthRateDisplay, purchaseDisplay);
+app.append(statusDisplay);
+
+function updateStatus() {
+  growthRateDisplay.innerHTML = `Current Growth Rate: ${growthRate.toFixed(2)} clicks/sec`;
+  purchaseDisplay.innerHTML = `Purchased: A(${itemsPurchased.A}), B(${itemsPurchased.B}), C(${itemsPurchased.C})`;
+}
+
 // Create an upgrade button
-const upgradeButton = document.createElement("button");
-upgradeButton.innerHTML = "Buy Upgrade (+1 growth per second)";
-upgradeButton.disabled = true; // Initially disabled
-app.append(upgradeButton);
+const upgradeA = document.createElement("button");
+upgradeA.innerHTML = "Buy A (+0.1 clicks/sec, cost: 10)";
+upgradeA.disabled = true;
+
+const upgradeB = document.createElement("button");
+upgradeB.innerHTML = "Buy B (+2.0 clicks/sec, cost: 100)";
+upgradeB.disabled = true;
+
+const upgradeC = document.createElement("button");
+upgradeC.innerHTML = "Buy C (+50 clicks/sec, cost: 1000)";
+upgradeC.disabled = true;
+
+app.append(upgradeA, upgradeB, upgradeC);
 
 let lastTimestamp = 0;
 
@@ -35,13 +57,11 @@ function updateCounter(timestamp: number) {
     num_clicks += boost(elapsedTime); // Increase num_clicks proportionally to the time passed and growth rate
     button.innerHTML = `${num_clicks.toFixed(2)} clicks so far`;
 
-    // Enable the upgrade button if the player has at least 10 units
-    if (num_clicks >= 10) {
-      upgradeButton.disabled = false;
-    } else {
-      upgradeButton.disabled = true;
-    }
+    upgradeA.disabled = num_clicks < 10;
+    upgradeB.disabled = num_clicks < 100;
+    upgradeC.disabled = num_clicks < 1000;
   }
+  updateStatus();
   lastTimestamp = timestamp; // Update lastTimestamp for the next frame
   requestAnimationFrame(updateCounter); // Schedule the next frame
 }
@@ -55,12 +75,30 @@ button.onclick = () => {
   button.innerHTML = `${num_clicks.toFixed(2)} clicks so far`;
 };
 
-// Handle upgrade purchase
-upgradeButton.onclick = () => {
+// Handle upgrade purchase// Handle upgrade purchases
+upgradeA.onclick = () => {
   if (num_clicks >= 10) {
-    num_clicks -= 10; // Deduct 10 units
-    growthRate += 1; // Increment the growth rate by 1 per second
-    upgradeButton.disabled = true; // Disable button until next check
+    num_clicks -= 10;
+    growthRate += 0.1;
+    itemsPurchased.A += 1;
+    button.innerHTML = `${num_clicks.toFixed(2)} clicks so far`;
+  }
+};
+
+upgradeB.onclick = () => {
+  if (num_clicks >= 100) {
+    num_clicks -= 100;
+    growthRate += 2.0;
+    itemsPurchased.B += 1;
+    button.innerHTML = `${num_clicks.toFixed(2)} clicks so far`;
+  }
+};
+
+upgradeC.onclick = () => {
+  if (num_clicks >= 1000) {
+    num_clicks -= 1000;
+    growthRate += 50.0;
+    itemsPurchased.C += 1;
     button.innerHTML = `${num_clicks.toFixed(2)} clicks so far`;
   }
 };
