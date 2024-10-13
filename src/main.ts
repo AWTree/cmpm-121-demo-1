@@ -2,7 +2,7 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "👾 Endless Mining";
+const gameName = "Mining Madness";
 document.title = gameName;
 
 const header = document.createElement("h1");
@@ -11,15 +11,18 @@ app.append(header);
 
 let oresMined = 0;
 let miningRate = 0;
-const itemsPurchased = { Pickaxe: 0, Drill: 0, Excavator: 0 };
 
-const prices = {
-  Pickaxe: 10,
-  Drill: 100,
-  Excavator: 1000,
-};
+// Array of available items (Pickaxe, Drill, Excavator)
+const availableItems = [
+  { name: "Pickaxe", cost: 10, rate: 0.1 },
+  { name: "Drill", cost: 100, rate: 2.0 },
+  { name: "Excavator", cost: 1000, rate: 50.0 }
+];
 
-// Create a button for clicking
+// Track number of items purchased
+const itemsPurchased = availableItems.map(() => 0);
+
+// Create a button for mining (main action)
 const mineButton = document.createElement("button");
 mineButton.innerHTML = "⛏️ Mine the Rock!";
 app.append(mineButton);
@@ -31,86 +34,62 @@ const purchaseDisplay = document.createElement("p");
 statusDisplay.append(miningRateDisplay, purchaseDisplay);
 app.append(statusDisplay);
 
+// Create a container for the upgrade buttons
+const upgradesContainer = document.createElement("div");
+app.append(upgradesContainer);
+
 function updateStatus() {
   miningRateDisplay.innerHTML = `Current Mining Rate: ${miningRate.toFixed(2)} ores/sec`;
-  purchaseDisplay.innerHTML = `Purchased: Pickaxe(${itemsPurchased.Pickaxe}), Drill(${itemsPurchased.Drill}), Excavator(${itemsPurchased.Excavator})`;
+  purchaseDisplay.innerHTML = `Purchased: ${availableItems
+    .map((item, index) => `${item.name}(${itemsPurchased[index]})`)
+    .join(", ")}`;
 }
 
-// Create an upgrade button
-const upgradePickaxe = document.createElement("button");
-upgradePickaxe.innerHTML = `Buy Pickaxe (+0.1 clicks/sec, cost: ${prices.Pickaxe.toFixed(2)})`;
-upgradePickaxe.disabled = true;
+function updateUpgradeButtons() {
+  upgradesContainer.innerHTML = ""; // Clear existing buttons
+  availableItems.forEach((item, index) => {
+    const upgradeButton = document.createElement("button");
+    upgradeButton.innerHTML = `Buy ${item.name} (+${item.rate} ores/sec, cost: ${item.cost.toFixed(2)})`;
+    upgradeButton.disabled = oresMined < item.cost; // Enable/Disable based on available ores
 
-const upgradeDrill = document.createElement("button");
-upgradeDrill.innerHTML = `Buy Drill (+2.0 clicks/sec, cost: ${prices.Drill.toFixed(2)})`;
-upgradeDrill.disabled = true;
+    upgradeButton.onclick = () => {
+      if (oresMined >= item.cost) {
+        oresMined -= item.cost;
+        miningRate += item.rate;
+        itemsPurchased[index] += 1;
+        item.cost *= 1.15; // Increase cost for next purchase
+        updateUpgradeButtons(); // Refresh buttons after purchase
+        mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
+      }
+    };
 
-const upgradeExcavator = document.createElement("button");
-upgradeExcavator.innerHTML = `Buy Excavator (+50 clicks/sec, cost: ${prices.Excavator.toFixed(2)})`;
-upgradeExcavator.disabled = true;
-
-app.append(upgradePickaxe, upgradeDrill, upgradeExcavator);
+    upgradesContainer.append(upgradeButton);
+  });
+}
 
 let lastTimestamp = 0;
 
 function boost(elapsedTime: number) {
-  return (miningRate * elapsedTime) / 1000; // Increase proportional to growthRate and time passed
+  return (miningRate * elapsedTime) / 1000;
 }
 
 function updateCounter(timestamp: number) {
   if (lastTimestamp !== 0) {
-    const elapsedTime = timestamp - lastTimestamp; // Calculate elapsed time since last frame
-    oresMined += boost(elapsedTime); // Increase num_clicks proportionally to the time passed and growth rate
+    const elapsedTime = timestamp - lastTimestamp;
+    oresMined += boost(elapsedTime);
     mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-
-    upgradePickaxe.disabled = oresMined < prices.Pickaxe;
-    upgradeDrill.disabled = oresMined < prices.Drill;
-    upgradeExcavator.disabled = oresMined < prices.Excavator;
+    updateUpgradeButtons(); // Update the state of the buttons
   }
   updateStatus();
-  lastTimestamp = timestamp; // Update lastTimestamp for the next frame
-  requestAnimationFrame(updateCounter); // Schedule the next frame
+  lastTimestamp = timestamp;
+  requestAnimationFrame(updateCounter);
 }
 
 // Start the animation loop
 requestAnimationFrame(updateCounter);
 
-// Handle manual clicking
+// Handle manual mining
 mineButton.onclick = () => {
-  oresMined += 1; // Add a full click on manual click
-  mineButton.innerHTML = `${oresMined.toFixed(2)} clicks so far`;
-};
-
-// Handle upgrade purchase// Handle upgrade purchases
-upgradePickaxe.onclick = () => {
-  if (oresMined >= prices.Pickaxe) {
-    oresMined -= prices.Pickaxe;
-    miningRate += 0.1;
-    itemsPurchased.Pickaxe += 1;
-    prices.Pickaxe *= 1.15; // Increase the price by 1.15 for the next purchase
-    upgradePickaxe.innerHTML = `Buy Pickaxe (+0.1 ores/sec, cost: ${prices.Pickaxe.toFixed(2)})`;
-    mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-  }
-};
-
-upgradeDrill.onclick = () => {
-  if (oresMined >= prices.Drill) {
-    oresMined -= prices.Drill;
-    miningRate += 2.0;
-    itemsPurchased.Drill += 1;
-    prices.Drill *= 1.15; // Increase the price by 1.15 for the next purchase
-    upgradeDrill.innerHTML = `Buy Drill (+2.0 ores/sec, cost: ${prices.Drill.toFixed(2)})`;
-    mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-  }
-};
-
-upgradeExcavator.onclick = () => {
-  if (oresMined >= prices.Excavator) {
-    oresMined -= prices.Excavator;
-    miningRate += 50.0;
-    itemsPurchased.Excavator += 1;
-    prices.Excavator *= 1.15; // Increase the price by 1.15 for the next purchase
-    upgradeExcavator.innerHTML = `Buy Excavator (+50 ores/sec, cost: ${prices.Excavator.toFixed(2)})`;
-    mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-  }
+  oresMined += 1;
+  mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
 };
