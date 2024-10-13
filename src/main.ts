@@ -2,7 +2,7 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "Mining Madness";
+const gameName = "⛏️ Endless Mining";
 document.title = gameName;
 
 const header = document.createElement("h1");
@@ -12,11 +12,46 @@ app.append(header);
 let oresMined = 0;
 let miningRate = 0;
 
-// Array of available items (Pickaxe, Drill, Excavator)
-const availableItems = [
-  { name: "Pickaxe", cost: 10, rate: 0.1 },
-  { name: "Drill", cost: 100, rate: 2.0 },
-  { name: "Excavator", cost: 1000, rate: 50.0 }
+// Define item interface with a description field
+interface Item {
+  name: string;
+  cost: number;
+  rate: number;
+  description: string;
+}
+
+// Array of available items (Pickaxe, Drill, Excavator, etc.)
+const availableItems: Item[] = [
+  {
+    name: "Pickaxe",
+    cost: 10,
+    rate: 0.1,
+    description: "A basic pickaxe for mining small amounts of ore."
+  },
+  {
+    name: "Drill",
+    cost: 100,
+    rate: 2.0,
+    description: "An automatic drill that mines ore continuously."
+  },
+  {
+    name: "Excavator",
+    cost: 1000,
+    rate: 50.0,
+    description: "A powerful machine that extracts massive amounts of ore."
+  },
+  {
+    name: "Mining Bot",
+    cost: 5000,
+    rate: 200.0,
+    description: "A fully autonomous mining bot that works around the clock."
+  },
+  {
+    name: "Ore Refinery",
+    cost: 20000,
+    rate: 1000.0,
+    description: "Refines raw ore into valuable resources at a rapid rate."
+  }
 ];
 
 // Track number of items purchased
@@ -52,6 +87,9 @@ function updateUpgradeButtons() {
     upgradeButton.innerHTML = `Buy ${item.name} (+${item.rate} ores/sec, cost: ${item.cost.toFixed(2)})`;
     upgradeButton.disabled = oresMined < item.cost; // Enable/Disable based on available ores
 
+    const description = document.createElement("p");
+    description.innerText = item.description;
+
     upgradeButton.onclick = () => {
       if (oresMined >= item.cost) {
         oresMined -= item.cost;
@@ -63,7 +101,7 @@ function updateUpgradeButtons() {
       }
     };
 
-    upgradesContainer.append(upgradeButton);
+    upgradesContainer.append(upgradeButton, description);
   });
 }
 
