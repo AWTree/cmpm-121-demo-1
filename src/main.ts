@@ -1,7 +1,6 @@
 import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
-
 const gameName = "⛏️ Endless Mining";
 document.title = gameName;
 
@@ -57,7 +56,7 @@ const availableItems: Item[] = [
 // Track number of items purchased
 const itemsPurchased = availableItems.map(() => 0);
 
-// Create a button for mining (main action)
+// Create main action button for mining
 const mineButton = document.createElement("button");
 mineButton.innerHTML = "⛏️ Mine the Rock!";
 app.append(mineButton);
@@ -69,33 +68,37 @@ const purchaseDisplay = document.createElement("p");
 statusDisplay.append(miningRateDisplay, purchaseDisplay);
 app.append(statusDisplay);
 
-// Create a container for the upgrade buttons
+// Create container for upgrade buttons
 const upgradesContainer = document.createElement("div");
 app.append(upgradesContainer);
 
-function updateStatus() {
-  miningRateDisplay.innerHTML = `Current Mining Rate: ${miningRate.toFixed(2)} ores/sec`;
-  purchaseDisplay.innerHTML = `Purchased: ${availableItems
-    .map((item, index) => `${item.name}(${itemsPurchased[index]})`)
-    .join(", ")}`;
-}
-
-function updateUpgradeButtons() {
-  upgradesContainer.innerHTML = ""; // Clear existing buttons
+// Initialize upgrade buttons only once
+function initializeUpgradeButtons() {
   availableItems.forEach((item, index) => {
     const upgradeButton = document.createElement("button");
     upgradeButton.innerHTML = `Buy ${item.name} (+${item.rate} ores/sec, cost: ${item.cost.toFixed(2)})`;
-    upgradeButton.disabled = oresMined < item.cost; // Enable/Disable based on available ores
+    upgradeButton.setAttribute("data-index", index.toString());
+    upgradesContainer.append(upgradeButton);
 
     const description = document.createElement("p");
     description.innerText = item.description;
-
-    upgradeButton.onclick = () => handleUpgradePurchase(index);
-
     upgradesContainer.append(upgradeButton, description);
+
+    // Attach click listener using addEventListener
+    upgradeButton.addEventListener("click", () => handleUpgradePurchase(index));
   });
 }
 
+// Update button state to enable or disable based on ores available
+function updateUpgradeButtonsState() {
+  const buttons = upgradesContainer.querySelectorAll("button");
+  buttons.forEach((button, index) => {
+    const item = availableItems[index];
+    button.disabled = oresMined < item.cost;
+  });
+}
+
+// Handle the purchase of an upgrade
 function handleUpgradePurchase(index: number) {
   const item = availableItems[index];
   if (oresMined >= item.cost) {
@@ -103,13 +106,21 @@ function handleUpgradePurchase(index: number) {
     miningRate += item.rate;
     itemsPurchased[index] += 1;
     item.cost *= 1.15; // Increase cost for next purchase
-    updateUpgradeButtons(); // Refresh buttons after purchase
+    updateUpgradeButtonsState();
     mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
   }
 }
 
-let lastTimestamp = 0;
+// Update the display of current status
+function updateStatus() {
+  miningRateDisplay.innerHTML = `Current Mining Rate: ${miningRate.toFixed(2)} ores/sec`;
+  purchaseDisplay.innerHTML = `Purchased: ${availableItems
+    .map((item, index) => `${item.name}(${itemsPurchased[index]})`)
+    .join(", ")}`;
+}
 
+// Function to calculate and add ores based on elapsed time
+let lastTimestamp = 0;
 function boost(elapsedTime: number) {
   return (miningRate * elapsedTime) / 1000;
 }
@@ -119,7 +130,7 @@ function updateCounter(timestamp: number) {
     const elapsedTime = timestamp - lastTimestamp;
     oresMined += boost(elapsedTime);
     mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-    updateUpgradeButtons(); // Update the state of the buttons
+    updateUpgradeButtonsState();
   }
   updateStatus();
   lastTimestamp = timestamp;
@@ -129,8 +140,11 @@ function updateCounter(timestamp: number) {
 // Start the animation loop
 requestAnimationFrame(updateCounter);
 
-// Handle manual mining
+// Handle manual mining action
 mineButton.onclick = () => {
   oresMined += 1;
   mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
 };
+
+// Initialize upgrade buttons once
+initializeUpgradeButtons();
