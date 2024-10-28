@@ -26,32 +26,32 @@ const availableItems: Item[] = [
     name: "Pickaxe",
     cost: 10,
     rate: 0.1,
-    description: "A basic pickaxe for mining small amounts of ore."
+    description: "A basic pickaxe for mining small amounts of ore.",
   },
   {
     name: "Drill",
     cost: 100,
     rate: 2.0,
-    description: "An automatic drill that mines ore continuously."
+    description: "An automatic drill that mines ore continuously.",
   },
   {
     name: "Excavator",
     cost: 1000,
     rate: 50.0,
-    description: "A powerful machine that extracts massive amounts of ore."
+    description: "A powerful machine that extracts massive amounts of ore.",
   },
   {
     name: "Mining Bot",
     cost: 5000,
     rate: 200.0,
-    description: "A fully autonomous mining bot that works around the clock."
+    description: "A fully autonomous mining bot that works around the clock.",
   },
   {
     name: "Ore Refinery",
     cost: 20000,
     rate: 1000.0,
-    description: "Refines raw ore into valuable resources at a rapid rate."
-  }
+    description: "Refines raw ore into valuable resources at a rapid rate.",
+  },
 ];
 
 // Track number of items purchased
@@ -90,19 +90,22 @@ function updateUpgradeButtons() {
     const description = document.createElement("p");
     description.innerText = item.description;
 
-    upgradeButton.onclick = () => {
-      if (oresMined >= item.cost) {
-        oresMined -= item.cost;
-        miningRate += item.rate;
-        itemsPurchased[index] += 1;
-        item.cost *= 1.15; // Increase cost for next purchase
-        updateUpgradeButtons(); // Refresh buttons after purchase
-        mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
-      }
-    };
+    upgradeButton.onclick = () => handleUpgradePurchase(index);
 
     upgradesContainer.append(upgradeButton, description);
   });
+}
+
+function handleUpgradePurchase(index: number) {
+  const item = availableItems[index];
+  if (oresMined >= item.cost) {
+    oresMined -= item.cost;
+    miningRate += item.rate;
+    itemsPurchased[index] += 1;
+    item.cost *= 1.15; // Increase cost for next purchase
+    updateUpgradeButtons(); // Refresh buttons after purchase
+    mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
+  }
 }
 
 let lastTimestamp = 0;
