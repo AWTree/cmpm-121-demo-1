@@ -106,10 +106,16 @@ function handleUpgradePurchase(index: number) {
     miningRate += item.rate;
     itemsPurchased[index] += 1;
     item.cost *= 1.15; // Increase cost for next purchase
-    updateUpgradeButtonsState();
+    
+    // Update the specific button's text to reflect the new cost
+    const upgradeButton = upgradesContainer.querySelectorAll("button")[index];
+    upgradeButton.innerHTML = `Buy ${item.name} (+${item.rate} ores/sec, cost: ${item.cost.toFixed(2)})`;
+    
+    updateUpgradeButtonsState(); // Refresh button states
     mineButton.innerHTML = `${oresMined.toFixed(2)} ores mined so far`;
   }
 }
+
 
 // Update the display of current status
 function updateStatus() {
