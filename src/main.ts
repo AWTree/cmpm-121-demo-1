@@ -26,14 +26,14 @@ const availableItems: Item[] = [
     cost: 10,
     rate: 0.1,
     description: "A basic pickaxe for mining small amounts of ore.",
-    color: "#8a5a44", 
+    color: "#8a5a44",
   },
   {
     name: "Drill",
     cost: 100,
     rate: 2.0,
     description: "An automatic drill that mines ore continuously.",
-    color: "#4a90e2", 
+    color: "#4a90e2",
   },
   {
     name: "Excavator",
@@ -47,17 +47,16 @@ const availableItems: Item[] = [
     cost: 5000,
     rate: 200.0,
     description: "A fully autonomous mining bot that works around the clock.",
-    color: "#8fbc8f", 
+    color: "#8fbc8f",
   },
   {
     name: "Ore Refinery",
     cost: 20000,
     rate: 1000.0,
     description: "Refines raw ore into valuable resources at a rapid rate.",
-    color: "#d4af37", 
+    color: "#d4af37",
   },
 ];
-
 
 // Track number of items purchased
 const itemsPurchased = availableItems.map(() => 0);
@@ -99,7 +98,9 @@ function initializeUpgradeButtons() {
 
 // Update button state to enable or disable based on ores available
 function updateUpgradeButtonsState() {
-  const buttons = upgradesContainer.querySelectorAll(".upgrade-button") as NodeListOf<HTMLButtonElement>;
+  const buttons = upgradesContainer.querySelectorAll(
+    ".upgrade-button",
+  ) as NodeListOf<HTMLButtonElement>;
   buttons.forEach((button, index) => {
     const item = availableItems[index];
     if (oresMined >= item.cost) {
@@ -108,7 +109,7 @@ function updateUpgradeButtonsState() {
       if (!button.querySelector(".available-icon")) {
         const icon = document.createElement("span");
         icon.className = "available-icon";
-        icon.innerHTML = "⭐"; 
+        icon.innerHTML = "⭐";
         button.appendChild(icon);
       }
     } else {
