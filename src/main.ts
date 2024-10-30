@@ -17,41 +17,47 @@ interface Item {
   cost: number;
   rate: number;
   description: string;
+  color: string;
 }
 
-// Array of available items (Pickaxe, Drill, Excavator, etc.)
 const availableItems: Item[] = [
   {
     name: "Pickaxe",
     cost: 10,
     rate: 0.1,
     description: "A basic pickaxe for mining small amounts of ore.",
+    color: "#8a5a44", 
   },
   {
     name: "Drill",
     cost: 100,
     rate: 2.0,
     description: "An automatic drill that mines ore continuously.",
+    color: "#4a90e2", 
   },
   {
     name: "Excavator",
     cost: 1000,
     rate: 50.0,
     description: "A powerful machine that extracts massive amounts of ore.",
+    color: "#d8a76c",
   },
   {
     name: "Mining Bot",
     cost: 5000,
     rate: 200.0,
     description: "A fully autonomous mining bot that works around the clock.",
+    color: "#8fbc8f", 
   },
   {
     name: "Ore Refinery",
     cost: 20000,
     rate: 1000.0,
     description: "Refines raw ore into valuable resources at a rapid rate.",
+    color: "#d4af37", 
   },
 ];
+
 
 // Track number of items purchased
 const itemsPurchased = availableItems.map(() => 0);
@@ -77,7 +83,9 @@ function initializeUpgradeButtons() {
   availableItems.forEach((item, index) => {
     const upgradeButton = document.createElement("button");
     upgradeButton.innerHTML = `Buy ${item.name} (+${item.rate} ores/sec, cost: ${item.cost.toFixed(2)})`;
+    upgradeButton.classList.add("upgrade-button"); // Add a specific class for styling
     upgradeButton.setAttribute("data-index", index.toString());
+    upgradeButton.style.backgroundColor = item.color;
     upgradesContainer.append(upgradeButton);
 
     const description = document.createElement("p");
@@ -91,10 +99,24 @@ function initializeUpgradeButtons() {
 
 // Update button state to enable or disable based on ores available
 function updateUpgradeButtonsState() {
-  const buttons = upgradesContainer.querySelectorAll("button");
+  const buttons = upgradesContainer.querySelectorAll(".upgrade-button") as NodeListOf<HTMLButtonElement>;
   buttons.forEach((button, index) => {
     const item = availableItems[index];
-    button.disabled = oresMined < item.cost;
+    if (oresMined >= item.cost) {
+      button.classList.add("available");
+      button.disabled = false;
+      if (!button.querySelector(".available-icon")) {
+        const icon = document.createElement("span");
+        icon.className = "available-icon";
+        icon.innerHTML = "⭐"; 
+        button.appendChild(icon);
+      }
+    } else {
+      button.classList.remove("available");
+      button.disabled = true;
+      const icon = button.querySelector(".available-icon");
+      if (icon) icon.remove();
+    }
   });
 }
 

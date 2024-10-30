@@ -25,7 +25,7 @@ a:hover {
 
 p {
   font-weight: 500;
-  font-size: 11px;
+  font-size: 14px;
   color: grey;
 }
 
@@ -33,6 +33,7 @@ body {
   margin: 0 auto;
   display: flex;
   place-items: center;
+  background-color: #c5c5c5;
   min-width: 100%;
   min-height: 100vh;
 }
@@ -49,7 +50,27 @@ h1 {
   justify-content: center;
 }
 
+.upgrade-button {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.upgrade-button.available {
+  filter: brightness(1.2); /* Increase brightness */
+  box-shadow: 0 0 10px rgba(0, 153, 255, 0.5); /* Soft glow effect */
+  animation: pulse 1.5s infinite; /* Pulsing animation */
+}
+
+button:disabled {
+  background-color: #ccc; /* Lighter color to indicate disabled */
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.9; /* Slight transparency for active hover effect */
+}
+
 button {
+  color: #ffffff;
   border-radius: 8px;
   border: none;
   margin: 0.1rem;
@@ -62,11 +83,14 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  background-color: #ffbc36;
+  color: #ffffff;
+  background-color: #a98948;
+  transition: color 0.3s;
 }
 button:focus,
 button:focus-visible {
-  background-color: #ffbc36;
+  color: #ffffff;
+  background-color: #a98948;
 }
 
 @media (prefers-color-scheme: light) {
@@ -76,8 +100,15 @@ button:focus-visible {
   }
   a:hover {
     color: #747bff;
+    transition: color 0.3s;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #949494;
   }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
